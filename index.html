@@ -922,7 +922,7 @@ document.addEventListener("change",ev=>{
     const r=new FileReader();
     r.onload=()=>{let o=null;try{o=JSON.parse(String(r.result))}catch(e){}
       if(!o){toast("백업 파일을 읽지 못했어요.");return}
-      if(applyDoc(o)){toast("가계부를 가져왔어요.");useLocal();}else render();};
+      if(applyDoc(o,true)){toast("가계부를 가져왔어요.");useLocal();}else render();};
     r.readAsText(f,"utf-8");
   }
 });
