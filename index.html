@@ -1222,6 +1222,7 @@ function importFromHash(){
   if(!obj)return;
   if(applyDoc(obj))setTimeout(()=>toast("가계부 기록을 불러왔어요."),400);
 }
+window.addEventListener("hashchange",()=>importFromHash());
 function backupHTML(){
   if(mode==="loading")return "";
   const empty=isEmptyDoc();
