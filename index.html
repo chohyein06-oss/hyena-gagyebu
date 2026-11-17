@@ -923,6 +923,7 @@ document.addEventListener("change",ev=>{
     r.onload=()=>{let o=null;try{o=JSON.parse(String(r.result))}catch(e){}
       if(!o){toast("백업 파일을 읽지 못했어요.");return}
       if(applyDoc(o,true)){toast("가계부를 가져왔어요.");useLocal();}else render();};
+    r.onloadend=()=>{ev.target.value=""};
     r.readAsText(f,"utf-8");
   }
 });
@@ -953,7 +954,15 @@ function act(a,ds={}){
       setTimeout(()=>URL.revokeObjectURL(url),10000);
       toast("백업 파일을 만들었어요.");break;
     }
-    case "pickImport":{const el=document.getElementById("impFile");if(el)el.click();break}
+    case "importText":{
+      const el=document.getElementById("impText");
+      const txt=el?String(el.value||"").trim():"";
+      if(!txt){toast("붙여넣은 내용이 없어요.");break}
+      let o=null;try{o=JSON.parse(txt)}catch(e){}
+      if(!o||!applyDoc(o,true)){toast("백업 내용을 읽지 못했어요. 내용을 빠짐없이 붙여넣었는지 확인해주세요.");break}
+      if(el)el.value="";
+      toast("가계부를 가져왔어요.");useLocal();break;
+    }
     case "newDebt":debtDraft={id:"d-"+uidGen(),name:"",amount:0,date:todayStr,due:"",memo:"",isNew:true};break;
     case "editDebt":{const d=debts().find(x=>x.id===ds.id);if(d)debtDraft={...d};break}
     case "cancelDebt":debtDraft=null;break;
@@ -1231,9 +1240,14 @@ function backupHTML(){
     <p class="lab" style="margin:0 0 10px">${empty?"아직 기록이 없어요. 백업 파일이나 불러오기 링크로 그 내용을 채울 수 있어요.":"기록은 이 기기 브라우저에만 저장돼요. 파일로 내보내 두면 폰을 바꾸거나 기록이 지워져도 되살릴 수 있어요."}</p>
     <div class="actions">
       <button class="ghost" data-act="exportJson">백업 내보내기</button>
-      <button class="ghost" data-act="pickImport">백업 가져오기</button>
+      <label for="impFile" class="ghost" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">백업 가져오기</label>
     </div>
-    <input type="file" id="impFile" accept=".json,application/json" style="display:none" aria-hidden="true">
+    <input type="file" id="impFile" tabindex="-1" aria-label="백업 파일 고르기" style="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0">
+    <details style="margin-top:10px">
+      <summary class="lab" style="cursor:pointer;font-size:13px;color:var(--muted)">파일이 안 열리면: 텍스트로 붙여넣기</summary>
+      <textarea id="impText" rows="4" spellcheck="false" placeholder="백업 JSON 내용을 붙여넣고 아래 버튼을 누르세요" style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:12px;line-height:1.4"></textarea>
+      <button class="ghost" data-act="importText" style="margin-top:8px;width:100%">붙여넣기 가져오기</button>
+    </details>
   </section>`;
 }
 
